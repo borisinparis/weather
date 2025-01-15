@@ -58,6 +58,7 @@ function App() {
       console.log(result);
       
       
+      
     } catch(error) {
       console.log(error);
       
@@ -67,11 +68,11 @@ function App() {
     }
   }
 
-
-   const clickedTarget = (event) => {
-    console.log(event);
-    setSearchValue()
-    setFilteredData([])
+   const clickedTarget = (city) => {
+  setSelectedCities(city)
+  console.log(weatherData.forecast);
+  
+    
     
 
   }
@@ -113,7 +114,7 @@ function App() {
         )}
                 {/* left main board */}
         <div className=' absolute left-[30%] top-[8%] z-10 w-[400px] h-[800px] mt-[10px] m-auto rounded-[40px] bg-white/40 backdrop-blur-[10px] '>
-          <p className='text-gray-400 text-[18px] ml-[40px]'>September 10,2025</p>
+          <p className='text-gray-400 text-[18px] ml-[40px]'>{weatherData.forecast}</p>
           <div className='flex justify-space'>
           <h2 className='text-[60px] ml-[40px]'>Krakow</h2>
             <div><Location/></div> </div>
