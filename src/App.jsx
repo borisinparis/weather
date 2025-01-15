@@ -9,63 +9,111 @@ import Pin from './pin.jsx'
 import Home from './home.jsx'
 import Logo2 from './icons/logo2.jsx'
 import Logo1 from './icons/logo1.jsx'
+import { getAllCities } from './utils/get-all-cities.js'
 function App() {
-  // const [count, setCount] = useState(0)
   const [searchValue,setSearchValue] =useState("")
   const [filteredData,setFilteredData]=useState([])
+  const [allCities,setAllCities] =useState([])
+  const [selectedCities,setSelectedCities] = useState("Ulaanbaatar, Mongolia")
+  const [weatherData,setWeatherData]= useState({})
+  const [isLoading,setIsLoading] =useState(false)
 
-  const allCities = ["UB Mongolia", "Seoul Korea", "Japan Tokyo"];
+
+  const weatherApiKey = "83e4cc7cbde84beea0091244251501"
 
   const onChange =(event) => {
-    setSearchValue(event.target.value)
+    setSearchValue(event.target.value);
+    const filtered = allCities
+    .filter((el) => el.toLowerCase().startsWith(searchValue.toLowerCase()))
+    .slice(0, 5)
+    setFilteredData(filtered)
   
     
   }
-  useEffect(() => {
-    if(!searchValue) {
-      setFilteredData([])
-    } else {
-    const filtered = allCities.filter((el)=> el.includes(searchValue));
-    console.log(filtered);
-    setFilteredData(filtered);
-   }
-    
-  }, [searchValue])
 
+  const getCountries = async() =>{
+    try{
+      const response = await fetch("https://countriesnow.space/api/v0.1/countries")
+      const result = await response.json();
+      const countries =result.data
+      const cities = getAllCities(countries)
+      setAllCities(cities)
+
+    } catch (error) {
+      console.log(error);
+      
+    }
+    finally {
+
+    }
+    
+
+  }
+  const getWeatherData = async() => {
+    setIsLoading(true)
+    try{
+      const response = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${weatherApiKey}&q=${selectedCities}`)
+      const result = await response.json();
+      setWeatherData(result)
+      console.log(result);
+      
+      
+    } catch(error) {
+      console.log(error);
+      
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }
+
+
+   const clickedTarget = (event) => {
+    console.log(event);
+    setSearchValue()
+    setFilteredData([])
+    
+
+  }
+  useEffect(()=>{
+    getWeatherData()
+
+  },[selectedCities])
+  useEffect(() => {
+    getCountries();
+  },[])
+
+  if(isLoading) {
+    return <p> loading ...</p>
+  }
   return (
     <>
     {/* main-content */}
-      <div className= "m-0 p-0 flex box-border w-full h-[1000px] bg-[#F3F4F6] ">
+      <div className= "m-0 p-0 flex box-border w-full h-[1280px] bg-[#F3F4F6] ">
       <div className="absolute z-2 top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-300 rounded-full h-[140px] w-[140px]">
       <div className='flex relative justify-center items-center rounded-full gap-[20px] m-auto w-[138px] h-[138px] bg-[#F3F4F6]'>
       <div className=''><Logo2/></div>
       <div className=''><Logo1/></div> </div>
       </div>
-      {/* <div className="absolute z-1 top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-300 rounded-full h-[340px] w-[340px]">
-      <div className='w-[250px] m-auto mt-[45px] h-[250px] absolute z-3 bg-[#F3F4F6]'></div>
-      <div className='w-[110px] h-[110px] absolute z-4 top-[1px] left-[168px] rounded-[50%] bg-black'></div>
-      <div className='w-[110px] h-[110px] absolute z-4 top-[230px] left-[168px] rounded-[50%] bg-black/95'></div>
-      </div> */}
+      <div className="absolute z-1 top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-300 rounded-full h-[340px] w-[340px]"></div>
       <div className="absolute z-1 top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-300 rounded-full h-[540px] w-[540px]"></div>
       <div className="absolute z-1 top-2/3 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-gray-300 rounded-full h-[940px] w-[940px]"></div>
-      <img src="Ellipse 21.png" className='w-[180px] h-[180px] absolute z-2 top-[110px] left-[70px]' />
-      <img src="Ellipse 22.png" className='w-[180px] h-[180px] absolute z-2 top-[800px] left-[1050px]' />
+      <img src="Ellipse 21.png" className='w-[180px] h-[180px] absolute z-2 top-[10%] left-[12%]' />
+      <img src="Ellipse 22.png" className='w-[180px] h-[180px] absolute z-2 top-[80%] left-[80%]' />
         {/* left-main */}
         <div className='w-1/2 relative h-full'>
         {/* search button */}
-        <div className='w-[400px] h-[70px] bg-[white] m-auto mt-[50px]'>
-          <div className='flex w-[400px] rounded-[10px] absolute z-20'>
+        <div className='w-[400px] h-[80px] rounded-[40px] absolute left-[80%] bg-[white] m-auto mt-[50px]'>
+          <div className='flex w-[400px] mt-[10px] rounded-[20px] absolute z-20'>
         <label className='m-auto' for="fname" ><SearchBottom/></label>
-        <input value={searchValue} onChange={onChange} placeholder='Search' className="m-auto w-[350px] h-[58px] rounded-[20px] text-3xl border-none;" type='search'/> </div> {
-          filteredData.map((el) =><div className='w-[380px] flexh-[70px] bg-white/95 backdrop-blur-[10px] m-auto mt-[50px] absolute z-30'>
-            <label className='m-auto for="fname'><Location/></label>
-          <input className='m-auto absolute z-30 w-[380px] h-[40px] text-4xl' key={el}/>
-          <p className='text-black absolute z-30 inline' key={el}>{el}</p> </div>
+        <input value={searchValue} onChange={onChange} placeholder='Search' className="m-auto w-[350px] h-[58px] rounded-[20px] text-3xl border-none;" type='search'/> </div>         </div>
+        {
+          filteredData.map((el) =>
+          <div onClick={()=>{clickedTarget(el)}} className='text-black relative w-[400px] h-[80px] bg-white/95 left-[82%] top-[10%]' key={el}>{el}</div> 
         )}
-        </div>
-        {/* left main board */}
-        <div className=' relative z-10 w-[400px] h-[800px] mt-[10px] m-auto rounded-[40px] bg-white/40 backdrop-blur-[10px] '>
-          <p className='text-gray-400 text-xl ml-[40px]'>September 10,2025</p>
+                {/* left main board */}
+        <div className=' absolute left-[30%] top-[8%] z-10 w-[400px] h-[800px] mt-[10px] m-auto rounded-[40px] bg-white/40 backdrop-blur-[10px] '>
+          <p className='text-gray-400 text-[18px] ml-[40px]'>September 10,2025</p>
           <div className='flex justify-space'>
           <h2 className='text-[60px] ml-[40px]'>Krakow</h2>
             <div><Location/></div> </div>
@@ -87,7 +135,7 @@ function App() {
         <div className='w-[600px] h-[60px] mt-[50px]'></div>
         {/* rigth main board */}
         <div className='relative z-20 w-[400px] h-[800px] rounded-[40px] mt-[10px] m-auto backdrop-blur-[10px] bg-black/40]'>
-          <p className='text-gray-400 text-xl ml-[40px]'>September 10,2025</p>
+          <p className='text-gray-400 text-[18px] ml-[40px]'>September 10,2025</p>
           <div className='flex justify-space'>
           <h2 className='text-[60px] text-white ml-[40px]'>Krakow</h2>
             <div><Location/></div> </div>
